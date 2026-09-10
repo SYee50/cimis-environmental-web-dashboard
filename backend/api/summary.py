@@ -19,7 +19,7 @@ def get_summary(
     Args:
         station (str): Name of the CIMIS weather station.
         start_date (Optional[str]): Optional start date for filtering observations.
-        end_date (Optional[str]]): Optional end date for filtering observations.
+        end_date (Optional[str]): Optional end date for filtering observations.
 
     Returns:
         dict: Summary statistics for the filtered CIMIS observations.
