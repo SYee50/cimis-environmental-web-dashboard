@@ -1,3 +1,7 @@
+"""
+Tests monthly and annual aggregation.
+"""
+
 import pandas as pd
 import pytest
 
