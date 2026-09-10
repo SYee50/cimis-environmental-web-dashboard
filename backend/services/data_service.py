@@ -84,3 +84,51 @@ def filter_data(
         ]
 
     return filtered_df
+
+
+def calculate_summary(df: pd.DataFrame) -> dict:
+    """
+    Calculate summary statistics for CIMIS observations.
+
+    Args:
+        df (pandas.DataFrame): CIMIS observations to summarize
+
+    Returns:
+        dict: Summary statistics for evapotranspiration (ETo) and environmental conditions.
+    """
+    return {
+        "eto": {
+            "total": df["ETo (mm)"].sum(),
+            "average_daily": df["ETo (mm)"].mean(),
+            "minimum_daily": df["ETo (mm)"].min(),
+            "maximum_daily": df["ETo (mm)"].max()
+        },
+        "precipitation": {
+            "total": df["Precip (mm)"].sum(),
+            "maximum_daily": df["Precip (mm)"].max()
+        },
+        "temperature": {
+            "average": df["Avg Air Temp (°C)"].mean(),
+            "minimum": df["Min Air Temp (°C)"].min(),
+            "maximum": df["Max Air Temp (°C)"].max(),
+        },
+        "humidity": {
+            "average": df["Avg Rel Hum (%)"].mean(),
+            "minimum": df["Min Rel Hum (%)"].min(),
+            "maximum": df["Max Rel Hum (%)"].max(),
+        },
+        "solar_radiation": {
+            "average_daily": df["Avg Sol Rad (W/m²)"].mean(),
+            "minimum_daily": df["Avg Sol Rad (W/m²)"].min(),
+            "maximum_daily": df["Avg Sol Rad (W/m²)"].max()
+        },
+        "vapor_pressure": {
+            "average": df["Avg Vap Pres (kPa)"].mean()
+        },
+        "dew_point": {
+            "average": df["Dew Point (°C)"].mean()
+        },
+        "wind_speed": {
+            "average": df["Avg Wind Speed (m/s)"].mean()
+        }
+    }
