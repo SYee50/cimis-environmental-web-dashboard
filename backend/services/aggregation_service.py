@@ -10,42 +10,54 @@ def aggregate_data(df: pd.DataFrame, aggregation: str) -> pd.DataFrame:
         aggregation (str): Aggregation level: "daily", "monthly", or "annual".
 
     Returns:
-        pandas.DataFrame: Aggregated CIMIS observations.
+        pandas.DataFrame: Aggregated CIMIS observations
+
+    Raises:
+        ValueError: If the aggregation level is not "daily", "monthly", or "annual".
     """
     if aggregation == "daily":
         return df
 
+    if aggregation not in {"monthly", "annual"}:
+        raise ValueError("Aggregation must be 'daily', 'monthly', or 'annual'")
+
+    # Copy DataFrame to prevent modification to original DataFrame passed-in
+    df = df.copy()
+
+    # Convert each date to corresponding YYYY-MM or YYYY
     if aggregation == "monthly":
-        df = df.copy()
         df["Date"] = df["Date"].dt.to_period("M")
-
-        station_number = df["Station Number"].iloc[0]
-
-        df = df.drop(columns=["Station Number", "Jul"])
-
-        monthly_df = df.groupby("Date").mean(numeric_only=True).reset_index()
-
-        monthly_df.insert(1, "Station Number", station_number)
-        monthly_df["Date"] = monthly_df["Date"].astype(str)
-
-        return monthly_df
-
-    if aggregation == "annual":
-        df = df.copy()
+    else:
         df["Date"] = df["Date"].dt.year
 
-        station_number = df["Station Number"].iloc[0]
+    # Define aggregation operation for each measurement
+    aggregation_rules = {
+        "Station Number": "first",
+        "ETo (mm)": "sum",
+        "Precip (mm)": "sum",
+        "Avg Sol Rad (W/m²)": "mean",
+        "Avg Vap Pres (kPa)": "mean",
+        "Max Air Temp (°C)": "max",
+        "Min Air Temp (°C)": "min",
+        "Avg Air Temp (°C)": "mean",
+        "Max Rel Hum (%)": "max",
+        "Min Rel Hum (%)": "min",
+        "Avg Rel Hum (%)": "mean",
+        "Dew Point (°C)": "mean",
+        "Avg Wind Speed (m/s)": "mean",
+    }
 
-        df = df.drop(columns=["Station Number", "Jul"])
+    # Remove Jul column that should not be aggregated
+    df = df.drop(columns=["Jul"])
 
-        annual_df = df.groupby("Date").mean(numeric_only=True).reset_index()
+    # Group observations by the converted Date
+    # Apply the aggregation operation for each column
+    aggregated_df = df.groupby("Date").agg(aggregation_rules).reset_index()
 
-        annual_df.insert(1, "Station Number", station_number)
-        annual_df["Date"] = annual_df["Date"].astype(str)
+    # Convert the grouped Date values to strings for the JSON response
+    aggregated_df["Date"] = aggregated_df["Date"].astype(str)
 
-        return annual_df
-
-    raise ValueError("Aggregation must ve 'daily', 'monthly', or 'annual'")
+    return aggregated_df
 
 
 if __name__ == "__main__":
