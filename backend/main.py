@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from backend.api.data import router as data_router
 from backend.api.stations import router as stations_router
+from backend.api.summary import router as summary_router
 
 
 app = FastAPI()
@@ -18,8 +19,7 @@ def home():
     return {"message": "CIMIS Dashboard API"}
 
 
-# Add the routes defined in data.py to the main FastAPI application
+# Add routes to the main FastAPI application
 app.include_router(data_router)
-
-# Add the routes defined in stations.py to the main FastAPI application
 app.include_router(stations_router)
+app.include_router(summary_router)
