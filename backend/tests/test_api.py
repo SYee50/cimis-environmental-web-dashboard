@@ -2,6 +2,8 @@
 Tests the HTTP/API behavior.
 """
 
+import pytest
+
 from fastapi.testclient import TestClient
 from backend.main import app
 
@@ -54,7 +56,7 @@ def test_data_request_returns_correct_station():
     assert all(row["Station Name"] == "Davis" for row in data)
 
 
-def test_invalid_station():
+def test_data_invalid_station():
     response = client.get(
         "/data",
         params={
@@ -65,7 +67,7 @@ def test_invalid_station():
     assert response.status_code == 404
 
 
-def test_invalid_aggregation():
+def test_data_invalid_aggregation():
     response = client.get(
         "/data",
         params={
@@ -77,7 +79,7 @@ def test_invalid_aggregation():
     assert response.status_code == 400
 
 
-def test_invalid_start_date():
+def test_data_invalid_start_date():
     response = client.get(
         "/data",
         params={
@@ -89,7 +91,7 @@ def test_invalid_start_date():
     assert response.status_code == 400
 
 
-def test_start_date_after_end_date():
+def test_data_start_date_after_end_date():
     response = client.get(
         "/data",
         params={
@@ -102,7 +104,7 @@ def test_start_date_after_end_date():
     assert response.status_code == 400
 
 
-def test_date_filtering():
+def test_data_date_filtering():
     response = client.get(
         "/data",
         params={
@@ -119,7 +121,7 @@ def test_date_filtering():
     assert all(row["Date"].startswith("2025-01-") for row in data)
 
 
-def test_monthly_aggregation():
+def test_data_monthly_aggregation():
     response = client.get(
         "/data",
         params={
@@ -140,7 +142,7 @@ def test_monthly_aggregation():
     assert len(dates) == len(set(dates))
 
 
-def test_annual_aggregation():
+def test_data_annual_aggregation():
     response = client.get(
         "/data",
         params={
@@ -160,7 +162,7 @@ def test_annual_aggregation():
     assert len(dates) == len(set(dates))
 
 
-def test_empty_date_range_returns_empty_list():
+def test_data_empty_date_range_returns_empty_list():
     response = client.get(
         "/data",
         params={
@@ -243,3 +245,91 @@ def test_data_request_with_date_range_and_daily_aggregation():
         "2025-01-04T00:00:00",
         "2025-01-05T00:00:00"
     ]
+
+
+def test_summary_request():
+    response = client.get(
+        "/summary",
+        params={
+            "station": "Davis"
+        }
+    )
+
+    data = response.json()
+
+    assert response.status_code == 200
+    assert "eto" in data
+    assert "precipitation" in data
+    assert "temperature" in data
+    assert "humidity" in data
+    assert "solar_radiation" in data
+    assert "vapor_pressure" in data
+    assert "dew_point" in data
+    assert "wind_speed" in data
+
+
+def test_summary_request_with_date_range():
+    response = client.get(
+        "/summary",
+        params={
+            "station": "Davis",
+            "start_date": "2025-01-01",
+            "end_date": "2025-12-31"
+        }
+    )
+
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["eto"]["total"] == pytest.approx(1379.62)
+    assert data["temperature"]["maximum"] == pytest.approx(38.9)
+
+
+def test_summary_invalid_station():
+    response = client.get(
+        "/summary",
+        params={
+            "station": "NotARealStation"
+        }
+    )
+
+    assert response.status_code == 404
+
+
+def test_summary_invalid_start_date():
+    response = client.get(
+        "/summary",
+        params={
+            "station": "Davis",
+            "start_date": "not-a-date"
+        }
+    )
+
+    assert response.status_code == 400
+
+
+def test_summary_start_date_after_end_date():
+    response = client.get(
+        "/summary",
+        params={
+            "station": "Davis",
+            "start_date": "2025-12-31",
+            "end_date": "2025-01-01"
+        }
+    )
+
+    assert response.status_code == 400
+
+
+def test_summary_empty_date_range():
+    response = client.get(
+        "/summary",
+        params={
+            "station": "Davis",
+            "start_date": "1900-01-01",
+            "end_date": "1900-01-31"
+        }
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {}
