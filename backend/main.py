@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api.data import router as data_router
 from backend.api.stations import router as stations_router
 from backend.api.summary import router as summary_router
+from backend.api.compare import router as compare_router
 
 
 app = FastAPI()
@@ -32,3 +33,4 @@ def home():
 app.include_router(data_router)
 app.include_router(stations_router)
 app.include_router(summary_router)
+app.include_router(compare_router)

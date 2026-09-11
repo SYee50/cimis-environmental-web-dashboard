@@ -1,6 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 import pandas as pd
+
+from backend.services.aggregation_service import aggregate_data
 
 
 DATA_PATH = "data/cimis_daily_clean.csv"
@@ -132,3 +134,49 @@ def calculate_summary(df: pd.DataFrame) -> dict:
             "average": df["Avg Wind Speed (m/s)"].mean()
         }
     }
+
+
+def compare_stations(
+        stations: List[str],
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        aggregation: str = "daily"):
+    """
+    Return aggregated CIMIS observations for multiple weather stations.
+
+    Args:
+        stations (list[str]): Names of the CIMIS weather stations to compare.
+        start_date (Optional[str]): Optional start date in YYYY-MM-DD format.
+        end_date (Optional[str]): Optional end date in YYYY-MM-DD format.
+        aggregation (str): Aggregation level: "daily", "monthly", or "annual".
+
+    Returns:
+        dict: Aggregated CIMIS observations grouped by station.
+
+    Raises:
+        ValueError: If not stations are provided, a station does not exist,
+        a date is malformed, or the date range is invalid.
+    """
+    if not stations:
+        raise ValueError("At least one station is required.")
+
+    comparison_data = {}
+
+    for station in stations:
+        filtered_df = filter_data(
+            station,
+            start_date,
+            end_date
+        )
+
+        aggregated_df = aggregate_data(
+            filtered_df,
+            aggregation
+        )
+
+        comparison_data[station] = aggregated_df.to_dict(
+            orient="records"
+        )
+
+    return comparison_data
+
