@@ -138,7 +138,7 @@ function App() {
                 }]}
 
                 layout={{
-                    title: {text: "Daily Evapotranspiration"},
+                    title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Evapotranspiration`},
                     xaxis: {title: {text: "Date"}},
                     yaxis: {title: {text: "ETo (mm)"}},
                     height: 500,
@@ -156,7 +156,7 @@ function App() {
                 }]}
 
                 layout={{
-                    title: {text: "Average Temperature Over Time"},
+                    title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature`},
                     xaxis: {title: {text: "Date"}},
                     yaxis: {title: {text: "Temperature (°C)"}},
                     height: 500,
