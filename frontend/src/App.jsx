@@ -145,6 +145,25 @@ function App() {
                     margin: {l: 100, r: 50, t: 100, b: 100}
                 }}
             />
+
+            {/* Line graph of average temperature over time for selected station and date range */}
+            <Plot
+                data={[{
+                    x: data.map((record) => record.Date),
+                    y: data.map((record) => record["Avg Air Temp (°C)"]),
+                    type: "scatter",
+                    mode: "lines"
+                }]}
+
+                layout={{
+                    title: {text: "Average Temperature Over Time"},
+                    xaxis: {title: {text: "Date"}},
+                    yaxis: {title: {text: "Temperature (°C)"}},
+                    height: 500,
+                    margin: {l: 100, r: 50, t: 100, b: 100}
+                }}
+            />
+
         </div>
     )
 }
