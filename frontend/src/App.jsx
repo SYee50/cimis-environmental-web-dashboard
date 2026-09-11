@@ -27,10 +27,11 @@ function App() {
     // summary data
     const [summary, setSummary] = useState({})
 
-    const [error, setError] = useState("")
+    const [stationError, setStationError] = useState("")
+    const [comparisonError, setComparisonError] = useState("")
 
     useEffect(() => {
-        setError("")
+        setStationError("")
 
         fetch('http://127.0.0.1:8000/stations')
             .then((response) => {
@@ -44,7 +45,7 @@ function App() {
                 setStations(data.stations)
             })
             .catch(() => {
-                setError(
+                setStationError(
                     "Unable to connect to the dashboard server. " +
                     "Please make sure the FastAPI server is running."
                 )
@@ -55,10 +56,11 @@ function App() {
     useEffect(() => {
         if (selectedStations.length === 0) {
             setComparisonData({})
+            setComparisonError("")
             return
         }
 
-        setError("")
+        setComparisonError("")
 
         fetch(
             `http://127.0.0.1:8000/compare?stations=${encodeURIComponent(selectedStations.join(","))}&start_date=${startDate}&end_date=${endDate}&aggregation=${aggregation}`
@@ -74,17 +76,20 @@ function App() {
                 setComparisonData(data)
             })
             .catch((error) => {
-                setError(error.message)
+                setComparisonError(error.message)
                 setComparisonData({})
             })
     }, [selectedStations, startDate, endDate, aggregation])
 
     useEffect(() => {
         if (!selectedStation) {
+            setData([])
+            setSummary({})
+            setStationError("")
             return
         }
 
-        setError("")
+        setStationError("")
 
         Promise.all([
             fetch(
@@ -106,13 +111,11 @@ function App() {
                 setSummary(summaryResult)
             })
             .catch((error) => {
-                setError(error.message)
+                setStationError(error.message)
                 setData([])
                 setSummary({})
             })
     }, [selectedStation, startDate, endDate, aggregation])
-
-    console.log(comparisonData)
 
     return (
         <div className="container mt-5">
@@ -159,7 +162,7 @@ function App() {
                 ]}
             />
 
-            {/*Date range drop-down menus*/}
+            {/*Date range inputs*/}
             <div className="row mb-3">
                 <DateInput
                     id="start-date"
@@ -176,15 +179,21 @@ function App() {
                 />
             </div>
 
-            {/*Display error message*/}
-            {error && (
+            {/*Display error messages*/}
+            {stationError && (
                 <div className="alert alert-danger">
-                    {error}
+                    {stationError}
+                </div>
+            )}
+
+            {comparisonError && (
+                <div className="alert alert-danger">
+                    {comparisonError}
                 </div>
             )}
 
             {/*Don't display cards or charts after an error*/}
-            {!error && data.length > 0 && (
+            {!stationError && data.length > 0 && (
                 <>
                     {/*Summary cards*/}
                     <div className="row mb-4">
@@ -249,6 +258,27 @@ function App() {
                         }}
                     />
                 </>
+            )}
+
+            {/* Line graph comparing ETo across selected stations */}
+            {!comparisonError && selectedStations.length > 0 && (
+                <Plot
+                    data={selectedStations.map((station) => ({
+                        x: comparisonData[station]?.map((record) => record.Date),
+                        y: comparisonData[station]?.map((record) => record["ETo (mm)"]),
+                        type: "scatter",
+                        mode: "lines",
+                        name: station
+                    }))}
+
+                    layout={{
+                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} ETo Comparison`},
+                        xaxis: {title: {text: "Date"}},
+                        yaxis: {title: {text: "ETo (mm)"}},
+                        height: 500,
+                        margin: {l: 100, r: 50, t: 100, b: 100}
+                    }}
+                />
             )}
 
         </div>
