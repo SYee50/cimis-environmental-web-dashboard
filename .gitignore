@@ -10,7 +10,7 @@ __pycache__/
 
 # Node
 node_modules/
-frontend/dist/
+dist/
 
 # Testing
 .pytest_cache/
