@@ -53,6 +53,33 @@ function App() {
     }, [])
 
     useEffect(() => {
+        if (selectedStations.length === 0) {
+            setComparisonData({})
+            return
+        }
+
+        setError("")
+
+        fetch(
+            `http://127.0.0.1:8000/compare?stations=${encodeURIComponent(selectedStations.join(","))}&start_date=${startDate}&end_date=${endDate}&aggregation=${aggregation}`
+        )
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to load comparison data.")
+                }
+
+                return response.json()
+            })
+            .then((data) => {
+                setComparisonData(data)
+            })
+            .catch((error) => {
+                setError(error.message)
+                setComparisonData({})
+            })
+    }, [selectedStations, startDate, endDate, aggregation])
+
+    useEffect(() => {
         if (!selectedStation) {
             return
         }
@@ -84,6 +111,8 @@ function App() {
                 setSummary({})
             })
     }, [selectedStation, startDate, endDate, aggregation])
+
+    console.log(comparisonData)
 
     return (
         <div className="container mt-5">
