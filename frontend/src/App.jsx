@@ -4,6 +4,7 @@ import Plot from 'react-plotly.js'
 import SummaryCard from "./components/SummaryCard.jsx"
 import SelectInput from "./components/SelectInput.jsx"
 import DateInput from "./components/DateInput.jsx"
+import MultiSelectInput from "./components/MultiSelectInput.jsx";
 
 
 function App() {
@@ -11,8 +12,12 @@ function App() {
     const [stations, setStations] = useState([])
     // station user selects
     const [selectedStation, setSelectedStation] = useState("")
+    // stations user selects for comparison
+    const [selectedStations, setSelectedStations] = useState([])
     // CIMIS observation data
     const [data, setData] = useState([])
+    // CIMIS observation data for stations selected for comparison
+    const [comparisonData, setComparisonData] = useState({})
     // start date user selects
     const [startDate, setStartDate] = useState("")
     // end date user selects
@@ -95,6 +100,17 @@ function App() {
                 value={selectedStation}
                 onChange={setSelectedStation}
                 placeholder="Select a station"
+                options={stations.map((station) => ({
+                    value: station,
+                    label: station
+                }))}
+            />
+
+            {/*Multi-select station menu*/}
+            <MultiSelectInput
+                label="Select Stations to Compare"
+                value={selectedStations}
+                onChange={setSelectedStations}
                 options={stations.map((station) => ({
                     value: station,
                     label: station
