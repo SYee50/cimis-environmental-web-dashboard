@@ -22,11 +22,28 @@ function App() {
     // summary data
     const [summary, setSummary] = useState({})
 
+    const [error, setError] = useState("")
+
     useEffect(() => {
+        setError("")
+
         fetch('http://127.0.0.1:8000/stations')
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to load weather stations.")
+                }
+
+                return response.json()
+            })
             .then((data) => {
                 setStations(data.stations)
+            })
+            .catch(() => {
+                setError(
+                    "Unable to connect to the dashboard server. " +
+                    "Please make sure the FastAPI server is running."
+                )
+                setStations([])
             })
     }, [])
 
@@ -35,18 +52,32 @@ function App() {
             return
         }
 
-        fetch(
+        setError("")
+
+        Promise.all([
+            fetch(
             `http://127.0.0.1:8000/data?station=${encodeURIComponent(selectedStation)}&start_date=${startDate}&end_date=${endDate}&aggregation=${aggregation}`
-        )
-            .then((response) => response.json())
-            .then((data) => setData(data))
-
-        fetch(
+            ),
+            fetch(
             `http://127.0.0.1:8000/summary?station=${encodeURIComponent(selectedStation)}&start_date=${startDate}&end_date=${endDate}`
-        )
-            .then((response) => response.json())
-            .then((data) => setSummary(data))
+            )
+        ])
+            .then(async ([dataResponse, summaryResponse]) =>{
+                if (!dataResponse.ok || !summaryResponse.ok) {
+                    throw new Error("Failed to load dashboard data.")
+                }
 
+                const dataResult = await dataResponse.json()
+                const summaryResult = await summaryResponse.json()
+
+                setData(dataResult)
+                setSummary(summaryResult)
+            })
+            .catch((error) => {
+                setError(error.message)
+                setData([])
+                setSummary({})
+            })
     }, [selectedStation, startDate, endDate, aggregation])
 
     return (
@@ -100,69 +131,80 @@ function App() {
                 />
             </div>
 
+            {/*Display error message*/}
+            {error && (
+                <div className="alert alert-danger">
+                    {error}
+                </div>
+            )}
 
-            {/*Summary cards*/}
-            <div className="row mb-4">
-                <SummaryCard
-                    title="Average Daily ETo"
-                    value={summary.eto?.average_daily?.toFixed(2)}
-                    unit="mm"
-                />
+            {/*Don't display cards or charts after an error*/}
+            {!error && data.length > 0 && (
+                <>
+                    {/*Summary cards*/}
+                    <div className="row mb-4">
+                        <SummaryCard
+                            title="Average Daily ETo"
+                            value={summary.eto?.average_daily?.toFixed(2)}
+                            unit="mm"
+                        />
 
-                <SummaryCard
-                    title="Total ETo"
-                    value={summary.eto?.total?.toFixed(2)}
-                    unit="mm"
-                />
+                        <SummaryCard
+                            title="Total ETo"
+                            value={summary.eto?.total?.toFixed(2)}
+                            unit="mm"
+                        />
 
-                <SummaryCard
-                    title="Total Precipitation"
-                    value={summary.precipitation?.total?.toFixed(2)}
-                    unit="mm"
-                />
+                        <SummaryCard
+                            title="Total Precipitation"
+                            value={summary.precipitation?.total?.toFixed(2)}
+                            unit="mm"
+                        />
 
-                <SummaryCard
-                    title="Average Temperature"
-                    value={summary.temperature?.average?.toFixed(2)}
-                    unit="°C"
-                />
-            </div>
+                        <SummaryCard
+                            title="Average Temperature"
+                            value={summary.temperature?.average?.toFixed(2)}
+                            unit="°C"
+                        />
+                    </div>
 
-            {/*Line graph of ETo over time for selected station and date range*/}
-            <Plot
-                data={[{
-                    x: data.map((record) => record.Date),
-                    y: data.map((record) => record["ETo (mm)"]),
-                    type: "scatter",
-                    mode: "lines"
-                }]}
+                    {/*Line graph of ETo over time for selected station and date range*/}
+                    <Plot
+                        data={[{
+                            x: data.map((record) => record.Date),
+                            y: data.map((record) => record["ETo (mm)"]),
+                            type: "scatter",
+                            mode: "lines"
+                        }]}
 
-                layout={{
-                    title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Evapotranspiration`},
-                    xaxis: {title: {text: "Date"}},
-                    yaxis: {title: {text: "ETo (mm)"}},
-                    height: 500,
-                    margin: {l: 100, r: 50, t: 100, b: 100}
-                }}
-            />
+                        layout={{
+                            title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Evapotranspiration`},
+                            xaxis: {title: {text: "Date"}},
+                            yaxis: {title: {text: "ETo (mm)"}},
+                            height: 500,
+                            margin: {l: 100, r: 50, t: 100, b: 100}
+                        }}
+                    />
 
-            {/* Line graph of average temperature over time for selected station and date range */}
-            <Plot
-                data={[{
-                    x: data.map((record) => record.Date),
-                    y: data.map((record) => record["Avg Air Temp (°C)"]),
-                    type: "scatter",
-                    mode: "lines"
-                }]}
+                    {/* Line graph of average temperature over time for selected station and date range */}
+                    <Plot
+                        data={[{
+                            x: data.map((record) => record.Date),
+                            y: data.map((record) => record["Avg Air Temp (°C)"]),
+                            type: "scatter",
+                            mode: "lines"
+                        }]}
 
-                layout={{
-                    title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature`},
-                    xaxis: {title: {text: "Date"}},
-                    yaxis: {title: {text: "Temperature (°C)"}},
-                    height: 500,
-                    margin: {l: 100, r: 50, t: 100, b: 100}
-                }}
-            />
+                        layout={{
+                            title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature`},
+                            xaxis: {title: {text: "Date"}},
+                            yaxis: {title: {text: "Temperature (°C)"}},
+                            height: 500,
+                            margin: {l: 100, r: 50, t: 100, b: 100}
+                        }}
+                    />
+                </>
+            )}
 
         </div>
     )
