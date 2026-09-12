@@ -302,6 +302,50 @@ function App() {
                 />
             )}
 
+            {/* Line graph comparing precipitation across selected stations */}
+            {!comparisonError && selectedStations.length > 0 && (
+                <Plot
+                    data={selectedStations.map((station) => ({
+                        x: comparisonData[station]?.map((record) => record.Date),
+                        y: comparisonData[station]?.map((record) => record["Precip (mm)"]),
+                        type: "scatter",
+                        mode: "lines",
+                        name: station
+                    }))}
+
+                    layout={{
+                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Precipitation Comparison`},
+                        xaxis: {title: {text: "Date"}},
+                        yaxis: {title: {text: "Precipitation (mm)"}},
+                        height: 500,
+                        margin: {l: 100, r: 50, t: 100, b: 100}
+                    }}
+                />
+            )}
+
+            {/* Line graph comparing average solar radiation across selected stations */}
+            {!comparisonError && selectedStations.length > 0 && (
+                <Plot
+                    data={selectedStations.map((station) => ({
+                        x: comparisonData[station]?.map((record) => record.Date),
+                        y: comparisonData[station]?.map((record) => record["Avg Sol Rad (W/m²)"]),
+                        type: "scatter",
+                        mode: "lines",
+                        name: station
+                    }))}
+
+                    layout={{
+                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Solar Radiation Comparison`},
+                        xaxis: {title: {text: "Date"}},
+                        yaxis: {title: {text: "Average Solar Radiation (W/m²)"}},
+                        height: 500,
+                        margin: {l: 100, r: 50, t: 100, b: 100}
+                    }}
+                />
+            )}
+
+
+
         </div>
     )
 }
