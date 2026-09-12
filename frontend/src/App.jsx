@@ -281,6 +281,27 @@ function App() {
                 />
             )}
 
+            {/* Line graph comparing average temperature across selected stations */}
+            {!comparisonError && selectedStations.length > 0 && (
+                <Plot
+                    data={selectedStations.map((station) => ({
+                        x: comparisonData[station]?.map((record) => record.Date),
+                        y: comparisonData[station]?.map((record) => record["Avg Air Temp (°C)"]),
+                        type: "scatter",
+                        mode: "lines",
+                        name: station
+                    }))}
+
+                    layout={{
+                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature Comparison`},
+                        xaxis: {title: {text: "Date"}},
+                        yaxis: {title: {text: "Average Temperature (°C)"}},
+                        height: 500,
+                        margin: {l: 100, r: 50, t: 100, b: 100}
+                    }}
+                />
+            )}
+
         </div>
     )
 }
