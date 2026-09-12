@@ -118,66 +118,77 @@ function App() {
     }, [selectedStation, startDate, endDate, aggregation])
 
     return (
-        <div className="container mt-5">
+        <div className="container-fluid min-vh-100 px-3 py-3">
             <h1 className="text-primary">CIMIS Environmental Dashboard</h1>
 
             <p className="lead">
                 Explore California weather and evapotranspiration data.
             </p>
 
-            {/*Station drop-down*/}
-            <SelectInput
-                id="station-select"
-                label="Weather Station"
-                value={selectedStation}
-                onChange={setSelectedStation}
-                placeholder="Select a station"
-                options={stations.map((station) => ({
-                    value: station,
-                    label: station
-                }))}
-            />
+            <div className="row g-4">
+                <div className="col-lg-6">
+                    <div className="row g-4">
+                        <div className="col-sm-6">
+                            <div className="card h-100">
+                                <div className="card-body">
+                                    <h2 className="h5 mb-3">Controls</h2>
 
-            {/*Multi-select station menu*/}
-            <MultiSelectInput
-                label="Select Stations to Compare"
-                value={selectedStations}
-                onChange={setSelectedStations}
-                options={stations.map((station) => ({
-                    value: station,
-                    label: station
-                }))}
-            />
+                                        {/*Station drop-down*/}
+                                        <SelectInput
+                                            id="station-select"
+                                            label="Weather Station"
+                                            value={selectedStation}
+                                            onChange={setSelectedStation}
+                                            placeholder="Select a station"
+                                            options={stations.map((station) => ({
+                                                value: station,
+                                                label: station
+                                            }))}
+                                        />
 
-            {/*Aggregation drop down menu*/}
-            <SelectInput
-                id="aggregation-select"
-                label="Aggregation"
-                value={aggregation}
-                onChange={setAggregation}
-                options={[
-                    {value: "daily", label: "Daily"},
-                    {value: "monthly", label: "Monthly"},
-                    {value: "annual", label: "Annual"}
-                ]}
-            />
+                                        {/*Multi-select station menu*/}
+                                        <MultiSelectInput
+                                            label="Select Stations to Compare"
+                                            value={selectedStations}
+                                            onChange={setSelectedStations}
+                                            options={stations.map((station) => ({
+                                                value: station,
+                                                label: station
+                                            }))}
+                                        />
 
-            {/*Date range inputs*/}
-            <div className="row mb-3">
-                <DateInput
-                    id="start-date"
-                    label="Start Date"
-                    value={startDate}
-                    onChange={setStartDate}
-                />
+                                        {/*Aggregation drop down menu*/}
+                                        <SelectInput
+                                            id="aggregation-select"
+                                            label="Aggregation"
+                                            value={aggregation}
+                                            onChange={setAggregation}
+                                            options={[
+                                                {value: "daily", label: "Daily"},
+                                                {value: "monthly", label: "Monthly"},
+                                                {value: "annual", label: "Annual"}
+                                            ]}
+                                        />
 
-                <DateInput
-                    id="end-date"
-                    label="End Date"
-                    value={endDate}
-                    onChange={setEndDate}
-                />
-            </div>
+                                        {/*Date range inputs*/}
+                                        <div className="row mb-3">
+                                            <DateInput
+                                                id="start-date"
+                                                label="Start Date"
+                                                value={startDate}
+                                                onChange={setStartDate}
+                                            />
+
+                                            <DateInput
+                                                id="end-date"
+                                                label="End Date"
+                                                value={endDate}
+                                                onChange={setEndDate}
+                                            />
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
 
             {/*Display error messages*/}
             {stationError && (
@@ -344,6 +355,9 @@ function App() {
                 />
             )}
 
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
