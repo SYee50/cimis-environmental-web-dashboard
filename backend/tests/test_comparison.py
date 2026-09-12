@@ -1,4 +1,5 @@
 import pytest
+import pandas as pd
 
 from backend.services.data_service import compare_stations
 
@@ -39,7 +40,8 @@ def test_compare_stations_with_date_range():
 
     for station_data in result.values():
         for record in station_data:
-            assert "2024-01" in record["Date"]
+            assert record["Date"] >= pd.Timestamp("2024-01-01")
+            assert record["Date"] <= pd.Timestamp("2024-01-31")
 
 
 def test_compare_stations_monthly_aggregation():
