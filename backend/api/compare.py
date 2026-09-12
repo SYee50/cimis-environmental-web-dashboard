@@ -16,7 +16,7 @@ def get_comparison(
     Return CIMIS observations for multiple weather stations.
 
     Args:
-        stations (str): Comma-seperated CIMIS weather station names.
+        stations (str): Comma-separated CIMIS weather station names.
         start_date (Optional[str]): Optional start date for filtering observations.
         end_date (Optional[str]): Optional end date for filtering observations.
         aggregation (str): Aggregation level: "daily", "monthly", or "annual".
