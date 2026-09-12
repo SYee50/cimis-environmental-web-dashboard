@@ -125,242 +125,334 @@ function App() {
                 Explore California weather and evapotranspiration data.
             </p>
 
+            {/* Display error messages */}
+            {(stationError || comparisonError) && (
+                <div className="mb-4">
+
+                    {stationError && (
+                        <div className="alert alert-danger">
+                            {stationError}
+                        </div>
+                    )}
+
+                    {comparisonError && (
+                        <div className="alert alert-danger">
+                            {comparisonError}
+                        </div>
+                    )}
+
+                </div>
+            )}
+
+            {/*Main Dashboard*/}
             <div className="row g-4">
+
+                {/*Left Half*/}
                 <div className="col-lg-6">
                     <div className="row g-4">
+
+                        {/*Controls*/}
                         <div className="col-sm-6">
                             <div className="card h-100">
                                 <div className="card-body">
+
                                     <h2 className="h5 mb-3">Controls</h2>
 
-                                        {/*Station drop-down*/}
-                                        <SelectInput
-                                            id="station-select"
-                                            label="Weather Station"
-                                            value={selectedStation}
-                                            onChange={setSelectedStation}
-                                            placeholder="Select a station"
-                                            options={stations.map((station) => ({
-                                                value: station,
-                                                label: station
-                                            }))}
-                                        />
+                                    {/*Station drop-down*/}
+                                    <SelectInput
+                                        id="station-select"
+                                        label="Weather Station"
+                                        value={selectedStation}
+                                        onChange={setSelectedStation}
+                                        placeholder="Select a station"
+                                        options={stations.map((station) => ({
+                                            value: station,
+                                            label: station
+                                        }))}
+                                    />
 
-                                        {/*Multi-select station menu*/}
-                                        <MultiSelectInput
-                                            label="Select Stations to Compare"
-                                            value={selectedStations}
-                                            onChange={setSelectedStations}
-                                            options={stations.map((station) => ({
-                                                value: station,
-                                                label: station
-                                            }))}
-                                        />
+                                    {/*Multi-select station menu*/}
+                                    <MultiSelectInput
+                                        label="Select Stations to Compare"
+                                        value={selectedStations}
+                                        onChange={setSelectedStations}
+                                        options={stations.map((station) => ({
+                                            value: station,
+                                            label: station
+                                        }))}
+                                    />
 
-                                        {/*Aggregation drop down menu*/}
-                                        <SelectInput
-                                            id="aggregation-select"
-                                            label="Aggregation"
-                                            value={aggregation}
-                                            onChange={setAggregation}
-                                            options={[
-                                                {value: "daily", label: "Daily"},
-                                                {value: "monthly", label: "Monthly"},
-                                                {value: "annual", label: "Annual"}
-                                            ]}
-                                        />
+                                    {/*Aggregation drop down menu*/}
+                                    <SelectInput
+                                        id="aggregation-select"
+                                        label="Aggregation"
+                                        value={aggregation}
+                                        onChange={setAggregation}
+                                        options={[
+                                            {value: "daily", label: "Daily"},
+                                            {value: "monthly", label: "Monthly"},
+                                            {value: "annual", label: "Annual"}
+                                        ]}
+                                    />
 
-                                        {/*Date range inputs*/}
-                                        <div className="row mb-3">
-                                            <DateInput
-                                                id="start-date"
-                                                label="Start Date"
-                                                value={startDate}
-                                                onChange={setStartDate}
-                                            />
+                                    {/*Date range inputs*/}
+                                    <DateInput
+                                        id="start-date"
+                                        label="Start Date"
+                                        value={startDate}
+                                        onChange={setStartDate}
+                                    />
 
-                                            <DateInput
-                                                id="end-date"
-                                                label="End Date"
-                                                value={endDate}
-                                                onChange={setEndDate}
-                                            />
-                                        </div>
+                                    <DateInput
+                                        id="end-date"
+                                        label="End Date"
+                                        value={endDate}
+                                        onChange={setEndDate}
+                                    />
                                 </div>
                             </div>
                         </div>
 
-            {/*Display error messages*/}
-            {stationError && (
-                <div className="alert alert-danger">
-                    {stationError}
-                </div>
-            )}
+                        {/*Summary Cards*/}
+                        {!stationError && data.length > 0 && (
+                            <>
+                            <div className="col-sm-6">
+                                <div className="card h-100">
+                                    <div className="card-body">
 
-            {comparisonError && (
-                <div className="alert alert-danger">
-                    {comparisonError}
-                </div>
-            )}
+                                        <h2 className="h5 mb-3">Summary</h2>
 
-            {/*Don't display cards or charts after an error*/}
-            {!stationError && data.length > 0 && (
-                <>
-                    {/*Summary cards*/}
-                    <div className="row mb-4">
-                        <SummaryCard
-                            title="Average Daily ETo"
-                            value={summary.eto?.average_daily?.toFixed(2)}
-                            unit="mm"
-                        />
+                                        <div className="d-flex flex-column gap-3">
+                                            {/*Summary cards*/}
+                                            <SummaryCard
+                                                title="Average Daily ETo"
+                                                value={summary.eto?.average_daily?.toFixed(2)}
+                                                unit="mm"
+                                            />
 
-                        <SummaryCard
-                            title="Total ETo"
-                            value={summary.eto?.total?.toFixed(2)}
-                            unit="mm"
-                        />
+                                            <SummaryCard
+                                                title="Total ETo"
+                                                value={summary.eto?.total?.toFixed(2)}
+                                                unit="mm"
+                                            />
 
-                        <SummaryCard
-                            title="Total Precipitation"
-                            value={summary.precipitation?.total?.toFixed(2)}
-                            unit="mm"
-                        />
+                                            <SummaryCard
+                                                title="Total Precipitation"
+                                                value={summary.precipitation?.total?.toFixed(2)}
+                                                unit="mm"
+                                            />
 
-                        <SummaryCard
-                            title="Average Temperature"
-                            value={summary.temperature?.average?.toFixed(2)}
-                            unit="°C"
-                        />
+                                            <SummaryCard
+                                                title="Average Temperature"
+                                                value={summary.temperature?.average?.toFixed(2)}
+                                                unit="°C"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </>
+                        )}
                     </div>
+                </div>
 
-                    {/*Line graph of ETo over time for selected station and date range*/}
-                    <Plot
-                        data={[{
-                            x: data.map((record) => record.Date),
-                            y: data.map((record) => record["ETo (mm)"]),
-                            type: "scatter",
-                            mode: "lines"
-                        }]}
+                {/*Right Half*/}
+                <div className="col-lg-6">
+                    <div className="row g-4">
 
-                        layout={{
-                            title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Evapotranspiration`},
-                            xaxis: {title: {text: "Date"}},
-                            yaxis: {title: {text: "ETo (mm)"}},
-                            height: 500,
-                            margin: {l: 100, r: 50, t: 100, b: 100}
-                        }}
-                    />
+                        {/*Individual station ETo chart */}
+                        {!stationError && data.length > 0 && (
+                            <>
+                            <div className="col-12">
+                                <div className="card">
+                                    <div className="card-body">
+                                        {/*Line graph of ETo over time for selected station and date range*/}
+                                        <Plot
+                                            data={[{
+                                                x: data.map((record) => record.Date),
+                                                y: data.map((record) => record["ETo (mm)"]),
+                                                type: "scatter",
+                                                mode: "lines"
+                                            }]}
 
-                    {/* Line graph of average temperature over time for selected station and date range */}
-                    <Plot
-                        data={[{
-                            x: data.map((record) => record.Date),
-                            y: data.map((record) => record["Avg Air Temp (°C)"]),
-                            type: "scatter",
-                            mode: "lines"
-                        }]}
+                                            layout={{
+                                                title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Evapotranspiration`},
+                                                xaxis: {title: {text: "Date"}},
+                                                yaxis: {title: {text: "ETo (mm)"}},
+                                                height: 400,
+                                                margin: {l: 100, r: 50, t: 100, b: 100}
+                                            }}
 
-                        layout={{
-                            title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature`},
-                            xaxis: {title: {text: "Date"}},
-                            yaxis: {title: {text: "Temperature (°C)"}},
-                            height: 500,
-                            margin: {l: 100, r: 50, t: 100, b: 100}
-                        }}
-                    />
-                </>
-            )}
+                                            useResizeHandler={true}
 
-            {/* Line graph comparing ETo across selected stations */}
-            {!comparisonError && selectedStations.length > 0 && (
-                <Plot
-                    data={selectedStations.map((station) => ({
-                        x: comparisonData[station]?.map((record) => record.Date),
-                        y: comparisonData[station]?.map((record) => record["ETo (mm)"]),
-                        type: "scatter",
-                        mode: "lines",
-                        name: station
-                    }))}
+                                            style={{width: "100%"}}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            </>
+                        )}
 
-                    layout={{
-                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} ETo Comparison`},
-                        xaxis: {title: {text: "Date"}},
-                        yaxis: {title: {text: "ETo (mm)"}},
-                        height: 500,
-                        margin: {l: 100, r: 50, t: 100, b: 100}
-                    }}
-                />
-            )}
+                        {/*Individual station temperature chart*/}
+                        {!stationError && data.length > 0 && (
+                            <>
+                            <div className="col-12">
+                                <div className="card">
+                                    <div className="card-body">
+                                        {/* Line graph of average temperature over time for selected station and date range */}
+                                        <Plot
+                                            data={[{
+                                                x: data.map((record) => record.Date),
+                                                y: data.map((record) => record["Avg Air Temp (°C)"]),
+                                                type: "scatter",
+                                                mode: "lines"
+                                            }]}
 
-            {/* Line graph comparing average temperature across selected stations */}
-            {!comparisonError && selectedStations.length > 0 && (
-                <Plot
-                    data={selectedStations.map((station) => ({
-                        x: comparisonData[station]?.map((record) => record.Date),
-                        y: comparisonData[station]?.map((record) => record["Avg Air Temp (°C)"]),
-                        type: "scatter",
-                        mode: "lines",
-                        name: station
-                    }))}
+                                            layout={{
+                                                title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature`},
+                                                xaxis: {title: {text: "Date"}},
+                                                yaxis: {title: {text: "Temperature (°C)"}},
+                                                height: 400,
+                                                margin: {l: 100, r: 50, t: 100, b: 100}
+                                            }}
 
-                    layout={{
-                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature Comparison`},
-                        xaxis: {title: {text: "Date"}},
-                        yaxis: {title: {text: "Average Temperature (°C)"}},
-                        height: 500,
-                        margin: {l: 100, r: 50, t: 100, b: 100}
-                    }}
-                />
-            )}
+                                            useResizeHandler={true}
 
-            {/* Bar graph comparing precipitation across selected stations */}
-            {!comparisonError && selectedStations.length > 0 && (
-                <Plot
-                    data={selectedStations.map((station) => ({
-                        x: comparisonData[station]?.map((record) => record.Date),
-                        y: comparisonData[station]?.map((record) => record["Precip (mm)"]),
-                        type: "bar",
-                        name: station
-                    }))}
-
-                    layout={{
-                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Precipitation Comparison`},
-                        xaxis: {title: {text: "Date"}},
-                        yaxis: {title: {text: "Precipitation (mm)"}},
-                        barmode: "group",
-                        height: 500,
-                        margin: {l: 100, r: 50, t: 100, b: 100}
-                    }}
-                />
-            )}
-
-            {/* Line graph comparing average solar radiation across selected stations */}
-            {!comparisonError && selectedStations.length > 0 && (
-                <Plot
-                    data={selectedStations.map((station) => ({
-                        x: comparisonData[station]?.map((record) => record.Date),
-                        y: comparisonData[station]?.map((record) => record["Avg Sol Rad (W/m²)"]),
-                        type: "scatter",
-                        mode: "lines",
-                        name: station
-                    }))}
-
-                    layout={{
-                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Solar Radiation Comparison`},
-                        xaxis: {title: {text: "Date"}},
-                        yaxis: {title: {text: "Average Solar Radiation (W/m²)"}},
-                        height: 500,
-                        margin: {l: 100, r: 50, t: 100, b: 100}
-                    }}
-                />
-            )}
-
+                                            style={{width: "100%"}}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Bar graph comparing precipitation across selected stations */}
+            {!comparisonError && selectedStations.length > 0 && (
+                <div className="row g-4 mt-2">
+
+                    {/*ETo station comparison line graph*/}
+                    <div className="col-lg-6">
+                        <div className="card">
+                            <div className="card-body">
+                                <Plot
+                                    data={selectedStations.map((station) => ({
+                                        x: comparisonData[station]?.map((record) => record.Date),
+                                        y: comparisonData[station]?.map((record) => record["ETo (mm)"]),
+                                        type: "scatter",
+                                        mode: "lines",
+                                        name: station
+                                    }))}
+
+                                    layout={{
+                                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} ETo Comparison`},
+                                        xaxis: {title: {text: "Date"}},
+                                        yaxis: {title: {text: "ETo (mm)"}},
+                                        height: 400,
+                                        margin: {l: 100, r: 50, t: 100, b: 100}
+                                    }}
+
+                                    useResizeHandler={true}
+
+                                    style={{width: "100%"}}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/*Average temperature station comparison line graph*/}
+                    <div className="col-lg-6">
+                        <div className="card">
+                            <div className="card-body">
+                                <Plot
+                                    data={selectedStations.map((station) => ({
+                                        x: comparisonData[station]?.map((record) => record.Date),
+                                        y: comparisonData[station]?.map((record) => record["Avg Air Temp (°C)"]),
+                                        type: "scatter",
+                                        mode: "lines",
+                                        name: station
+                                    }))}
+
+                                    layout={{
+                                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Average Temperature Comparison`},
+                                        xaxis: {title: {text: "Date"}},
+                                        yaxis: {title: {text: "Average Temperature (°C)"}},
+                                        height: 400,
+                                        margin: {l: 100, r: 50, t: 100, b: 100}
+                                    }}
+
+                                    useResizeHandler={true}
+
+                                    style={{width: "100%"}}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/*Precipitation station comparison bar graph*/}
+                    <div className="col-lg-6">
+                        <div className="card">
+                            <div className="card-body">
+                                <Plot
+                                    data={selectedStations.map((station) => ({
+                                        x: comparisonData[station]?.map((record) => record.Date),
+                                        y: comparisonData[station]?.map((record) => record["Precip (mm)"]),
+                                        type: "bar",
+                                        name: station
+                                    }))}
+
+                                    layout={{
+                                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Precipitation Comparison`},
+                                        xaxis: {title: {text: "Date"}},
+                                        yaxis: {title: {text: "Precipitation (mm)"}},
+                                        barmode: "group",
+                                        height: 400,
+                                        margin: {l: 100, r: 50, t: 100, b: 100}
+                                    }}
+
+                                    useResizeHandler={true}
+
+                                    style={{width: "100%"}}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/*Average solar radiation station comparison line graph*/}
+                    <div className="col-lg-6">
+                        <div className="card">
+                            <div className="card-body">
+                                <Plot
+                                    data={selectedStations.map((station) => ({
+                                        x: comparisonData[station]?.map((record) => record.Date),
+                                        y: comparisonData[station]?.map((record) => record["Avg Sol Rad (W/m²)"]),
+                                        type: "scatter",
+                                        mode: "lines",
+                                        name: station
+                                    }))}
+
+                                    layout={{
+                                        title: {text: `${aggregation.charAt(0).toUpperCase() + aggregation.slice(1)} Solar Radiation Comparison`},
+                                        xaxis: {title: {text: "Date"}},
+                                        yaxis: {title: {text: "Average Solar Radiation (W/m²)"}},
+                                        height: 400,
+                                        margin: {l: 100, r: 50, t: 100, b: 100}
+                                    }}
+
+                                    useResizeHandler={true}
+
+                                    style={{width: "100%"}}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     )
 }
-
 
 export default App

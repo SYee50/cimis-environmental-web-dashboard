@@ -5,7 +5,7 @@ function DateInput({
     onChange
 }) {
     return (
-        <div className="col">
+        <div className="mb-3">
             <label htmlFor={id} className={"form-label"}>
                 {label}
             </label>
